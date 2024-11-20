@@ -165,57 +165,51 @@ while ($branch = $branchResult->fetch_assoc()) {
         <i class="fas fa-bars"></i>
     </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
+   <!-- Sidebar -->
+   <div class="sidebar" id="sidebar">
         <h2>Phil<span>Express</span></h2>
-        <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="branches.php"><i class="fas fa-code-branch"></i> Branches</a>
-        <a href="staff.php"><i class="fas fa-users"></i> Staff</a>
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         <div class="dropdown">
             <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i> Parcels</a>
             <ul class="dropdown-menu">
-                <li><a href="parcel_list.php">Parcel List</a></li>
-                <li><a href="parcel_add.php">Add Parcel</a></li>
-                <li><a href="accepted.php">Accepted by Courier</a></li>
-                <li><a href="shipped.php">Shipped</a></li>
-                <li><a href="in_transit.php">In Transit</a></li>
-                <li><a href="arrived_at_destination.php">Arrived At Destination</a></li>
-                <li><a href="out_for_delivery.php">Out for Delivery</a></li>
-                <li><a href="ready_to_pickup.php">Ready to Pickup</a></li>
-                <li><a href="delivered.php">Delivered</a></li>
-                <li><a href="delivery_failed.php">Delivery Failed</a></li>
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
             </ul>
         </div>
-        <a href="track.php"><i class="fas fa-location"></i> TrackParcel</a>
-        <!-- <a href="#"><i class="fas fa-file-alt"></i> ActivityLog</a> -->
+        <a href="staff_track.php"><i class="fas fa-location"></i> TrackParcel</a>
         <div class="logout" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <!-- Navbar (For Mobile) -->
     <div class="navbar">
-        <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
-        <a href="branches.php"><i class="fas fa-code-branch"></i><br> Branches</a>
-        <a href="staff.php"><i class="fas fa-users"></i><br> Staff</a>
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
         <div class="dropdown">
             <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i><br> Parcels</a>
             <ul class="dropdown-menu" id="navbar_dropdown">
-                <li><a href="parcel_list.php">Parcel List</a></li>
-                <li><a href="parcel_add.php">Add Parcel</a></li>
-                <li><a href="accepted.php">Accepted by Courier</a></li>
-                <li><a href="shipped.php">Shipped</a></li>
-                <li><a href="in_transit.php">In Transit</a></li>
-                <li><a href="arrived_at_destination.php">Arrived At Destination</a></li>
-                <li><a href="out_for_delivery.php">Out for Delivery</a></li>
-                <li><a href="ready_to_pickup.php">Ready to Pickup</a></li>
-                <li><a href="delivered.php">Delivered</a></li>
-                <li><a href="delivery_failed.php">Delivery Failed</a></li>
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
             </ul>
         </div>
-        <a href="track.php"><i class="fas fa-location"></i><br> TrackParcel</a>
-        <!-- <a href="#"><i class="fas fa-file-alt"></i><br> ActivityLog</a> -->
+        <a href="staff_track.php"><i class="fas fa-location"></i><br> TrackParcel</a>
         <a href="#" onclick="confirmLogout()" class="logout"><i class="fas fa-sign-out-alt"></i><br> Logout</a>
     </div>
-
+    
     <!-- Content -->
     <div class="content">
         <div class="header">

@@ -1,163 +1,34 @@
-<?php
-session_start();
-include("db_connection.php");
-
-$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-$user_details = null;
-
-if ($user_id) {
-    $sql = "SELECT * FROM users WHERE id = '$user_id'";
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        $user_details = $result->fetch_assoc();
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_profile'])) {
-    $firstname = mysqli_real_escape_string($conn, $_POST['firstname']);
-    $lastname = mysqli_real_escape_string($conn, $_POST['lastname']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
-    
-    $sql = "UPDATE users SET firstname='$firstname', lastname='$lastname', email='$email', password='$password' WHERE id='$user_id'";
-    if ($conn->query($sql) === TRUE) {
-        echo "<script>alert('Profile updated successfully!');</script>";
-    } else {
-        echo "<script>alert('Error updating profile: " . $conn->error . "');</script>";
-    }
-}
-
-if (isset($_GET['logout'])) {
-    session_destroy();
-    header("Location: user_page.php");
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/side_nav.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/font/css/all.min.css">
+    <title>Track Parcel</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
 
+        /* 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-        }
-
-        .navbar {
-            background-color: #ffffff;
-            padding: 15px 30px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #ddd;
-        }
+            background-color: #f9f3f3;
+        } */
 
-        .navbar .logo {
-            color: #333;
-            font-size: 24px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-        }
-
-        .navbar ul li {
-            margin-left: 20px;
-        }
-
-        .navbar ul li a {
-            color: #333;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 5px 10px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .navbar ul li a:hover {
-            background-color: #eee;
-            color: #333;
-            border-radius: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            width: 300px;
-            text-align: center;
-            z-index: 10;
-            background-color: white;
-        }
-
-        .modal h2 {
-            margin-bottom: 15px;
-        }
-
-        .modal input {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .modal button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #333;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .modal button:hover {
-            background-color: #555;
-        }
-
-        .modal .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
-            color: #333;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .modal .close-btn:hover {
-            color: #555;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
+        .main-content {
+            flex-grow: 1;
+            color: #ffffff;
+            line-height: 35px;
+            padding: 40px;
+            background-color: #191919;
         }
 
         .track-form {
@@ -165,8 +36,8 @@ if (isset($_GET['logout'])) {
             margin: 0 auto;
             padding: 30px;
             border-radius: 10px;
-            /* background-color: #232323; */
-            /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+            background-color: #232323;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .track-form h1 {
@@ -179,18 +50,19 @@ if (isset($_GET['logout'])) {
             width: 100%;
             padding: 12px;
             font-size: 14px;
-            border: 2px solid #555;
+            border: 2px solid #ffcc00;
             border-radius: 8px;
             outline: none;
             margin-bottom: 20px;
+            background-color: #333;
             color: #ffffff;
         }
 
         .track-form button {
             width: 100%;
             padding: 12px;
-            background-color: gray;
-            color: white;
+            background-color: #ffcc00;
+            color: black;
             border: none;
             border-radius: 8px;
             font-size: 14px;
@@ -198,33 +70,37 @@ if (isset($_GET['logout'])) {
             transition: background-color 0.3s;
         }
 
+        .track-form button:hover {
+            background-color: #e6b800;
+        }
+
         .parcel-info {
             margin-top: 20px;
-            /* padding: 10px; */
-            /* background-color: #2b2b2b; */
-            /* border-radius: 10px; */
-            /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+            padding: 20px;
+            background-color: #2b2b2b;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .parcel-info h3 {
             font-size: 20px;
-            color: #000;
+            color: #ffcc00;
         }
 
         .parcel-info p {
             font-size: 15px;
-            color: #000;
-            line-height: 40px;
+            color: #ffffff;
         }
 
         .status-box {
             display: flex;
             justify-content: space-between;
+            background-color: #333;
             padding: 9px;
             margin-bottom: 15px;
             border-radius: 10px;
             font-size: 16px;
-            color: #555;
+            color: #ffcc00;
             box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
@@ -244,14 +120,18 @@ if (isset($_GET['logout'])) {
             margin-top: 20px;
             padding: 12px;
             width: 100%;
-            background-color: #555;
-            color: whitesmoke;
+            background-color: #ffcc00;
+            color: black;
             font-size: 16px;
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s;
+        }
+
+        .print-btn:hover {
+            background-color: #e6b800;
         }
 
         @media print {
@@ -308,43 +188,77 @@ if (isset($_GET['logout'])) {
                 background-color: #f7f7f7;
                 color: black;
             }
+
+            /* .status-box{
+        display: none;
+    } */
         }
     </style>
+    <script>
+        function showPrintButton() {
+            document.querySelector('.print-btn').style.display = 'block';
+        }
+    </script>
 </head>
+
 <body>
 
-    <nav class="navbar">
-        <a href="#" class="logo">Logo</a>
-        <ul>
-            <li><a href="user_dashboard.php">Home</a></li>
-            <li><a href="user_reviews.php">Review</a></li>
-            <li><a href="#profile" onclick="openModal('editProfileModal')">Edit Profile</a></li>
-            <li><a href="?logout=true">Logout</a></li>
-        </ul>
-    </nav>
-
-    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
-
-    <!-- Edit Profile Modal -->
-    <div class="modal" id="editProfileModal">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeAllModals()">×</a>
-        <h2>Edit Profile</h2>
-        <form action="" method="POST">
-            <input type="text" name="firstname" placeholder="First Name" value="<?php echo $user_details['firstname']; ?>" required>
-            <input type="text" name="lastname" placeholder="Last Name" value="<?php echo $user_details['lastname']; ?>" required>
-            <input type="email" name="email" placeholder="Email" value="<?php echo $user_details['email']; ?>" required>
-            <input type="password" name="password" placeholder="New Password">
-            <button type="submit" name="edit_profile">Save Changes</button>
-        </form>
+    <div class="hamburger" id="hamburger">
+        <i class="fas fa-bars"></i>
     </div>
 
-     <!-- Content -->
-     <div class="content">
+   <!-- Sidebar -->
+   <div class="sidebar" id="sidebar">
+        <h2>Phil<span>Express</span></h2>
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i> Parcels</a>
+            <ul class="dropdown-menu">
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
+            </ul>
+        </div>
+        <a href="staff_track.php"><i class="fas fa-location"></i> TrackParcel</a>
+        <div class="logout" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    </div>
+
+    <!-- Navbar (For Mobile) -->
+    <div class="navbar">
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i><br> Parcels</a>
+            <ul class="dropdown-menu" id="navbar_dropdown">
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
+            </ul>
+        </div>
+        <a href="staff_track.php"><i class="fas fa-location"></i><br> TrackParcel</a>
+        <a href="#" onclick="confirmLogout()" class="logout"><i class="fas fa-sign-out-alt"></i><br> Logout</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
         <div class="main-content">
             <div class="track-form">
                 <img src="assets/img/logo.png" alt="Courier Management System" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
-                <form method="GET" action="user_dashboard.php" onsubmit="showPrintButton()">
+                <form method="GET" action="staff_track.php" onsubmit="showPrintButton()">
                     <input type="text" name="reference_number" placeholder="Enter Parcel Reference Number" required>
                     <button type="submit">Track Parcel</button>
                 </form>
@@ -419,16 +333,28 @@ if (isset($_GET['logout'])) {
     </div>
 
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
+        const hamburger = document.getElementById("hamburger");
+        const sidebar = document.getElementById("sidebar");
 
-        function closeAllModals() {
-            document.getElementById('editProfileModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+        hamburger.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+
+        const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
+        dropdownToggles.forEach((toggle) => {
+            toggle.nextElementSibling.style.display = "none";
+            toggle.addEventListener("click", () => {
+                toggle.nextElementSibling.style.display = toggle.nextElementSibling.style.display === "block" ? "none" : "block";
+            });
+        });
+
+        function confirmLogout() {
+            const confirmAction = confirm("Are you sure you want to logout?");
+            if (confirmAction) {
+                window.location.href = "logout.php";
+            }
         }
     </script>
-
 </body>
+
 </html>

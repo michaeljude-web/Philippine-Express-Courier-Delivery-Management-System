@@ -2,21 +2,19 @@
 session_start();
 include("db_connection.php");
 
-// Handle login
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Query to check credentials
     $sql = "SELECT firstname, lastname FROM staff WHERE email='$email' AND password='$password'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc(); // Kunin ang user data
+        $user = $result->fetch_assoc(); 
         $_SESSION['user'] = [
             'firstname' => $user['firstname'],
             'lastname' => $user['lastname'],
-            'email' => $email // Optional: email
+            'email' => $email 
         ];
         header("Location: staff_dashboard.php");
         exit();
@@ -45,8 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
+        h2 {
+            text-align: center;
+            color: whitesmoke;
+        }
         input[type="text"], input[type="password"] {
-            width: 100%;
+            width: 93%;
             padding: 10px;
             margin: 10px 0;
             border: none;
@@ -74,13 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 </head>
 <body>
     <div class="container">
-        <h2>Staff Login</h2>
+        <h2>Staff Login</h2> <hr>
         <?php if (isset($error)): ?>
             <div class="error"><?= $error ?></div>
         <?php endif; ?>
         <form method="POST">
             <input type="text" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="password" placeholder="Password" required> <br> 
             <button type="submit" name="login">Login</button>
         </form>
     </div>

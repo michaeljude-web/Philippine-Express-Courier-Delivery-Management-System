@@ -143,6 +143,20 @@
                 font-family: Arial, sans-serif;
                 background-color: white;
                 line-height: 25px;
+                position: relative;
+                bottom: 120px;
+            }
+
+            .navbar {
+                display: none;
+            }
+
+            .parcel-info h3 {
+                color: #000;
+            }
+
+            .parcel-info p {
+                color: #000;
             }
 
             .hamburger {
@@ -221,13 +235,13 @@
 
     <!-- Navbar (For Mobile) -->
     <div class="navbar">
-        <a href="#"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
-        <a href="#"><i class="fas fa-code-branch"></i><br> Branches</a>
-        <a href="#"><i class="fas fa-users"></i><br> Staff</a>
+        <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
+        <a href="branches.php"><i class="fas fa-code-branch"></i><br> Branches</a>
+        <a href="staff.php"><i class="fas fa-users"></i><br> Staff</a>
         <div class="dropdown">
             <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i><br> Parcels</a>
             <ul class="dropdown-menu" id="navbar_dropdown">
-            <li><a href="parcel_list.php">Parcel List</a></li>
+                <li><a href="parcel_list.php">Parcel List</a></li>
                 <li><a href="parcel_add.php">Add Parcel</a></li>
                 <li><a href="accepted.php">Accepted by Courier</a></li>
                 <li><a href="shipped.php">Shipped</a></li>
@@ -246,19 +260,14 @@
 
     <!-- Content -->
     <div class="content">
-        <!-- <div class="header">
-            <h1>Admin Dashboard</h1>
-        </div> -->
         <div class="main-content">
             <div class="track-form">
                 <img src="assets/img/logo.png" alt="Courier Management System" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
-                <br>
                 <form method="GET" action="track.php" onsubmit="showPrintButton()">
                     <input type="text" name="reference_number" placeholder="Enter Parcel Reference Number" required>
                     <button type="submit">Track Parcel</button>
                 </form>
-
 
                 <?php
                 if (isset($_GET['reference_number'])) {

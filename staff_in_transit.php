@@ -1,21 +1,9 @@
 <?php
 include "db_connection.php";
 
-$sql = "SELECT * FROM parcels";
-$result = $conn->query($sql);
-
-$branchQuery = "SELECT * FROM branches";
-$branchResult = $conn->query($branchQuery);
-$branches = [];
-while ($branch = $branchResult->fetch_assoc()) {
-    $branches[$branch['id']] = $branch;
-}
-
-
-
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
 
-$sql = "SELECT * FROM parcels WHERE reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ?";
+$sql = "SELECT * FROM parcels WHERE (reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ?) AND status = 'In Transit'";
 $stmt = $conn->prepare($sql);
 $searchTermLike = "%" . $searchTerm . "%";
 $stmt->bind_param("sss", $searchTermLike, $searchTermLike, $searchTermLike);
@@ -58,48 +46,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
 
 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-    $parcel_id = $_POST['parcel_id'];
-    $new_status = $_POST['status'];
-
-    $update_sql = "UPDATE parcels SET status = ? WHERE id = ?";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("si", $new_status, $parcel_id);
-
-    if ($stmt->execute()) {
-
-        $insert_history_sql = "INSERT INTO parcel_status_history (parcel_id, status) VALUES (?, ?)";
-        $stmtHistory = $conn->prepare($insert_history_sql);
-        $stmtHistory->bind_param("is", $parcel_id, $new_status);
-        $stmtHistory->execute();
-
-        echo "";
-    } else {
-        echo "Error updating parcel status: " . $stmt->error;
-    }
-}
-
-
-
-
-$parcelsPerPage = 7;
-
+$parcelsPerPage = 10;
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $parcelsPerPage;
 
-
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
 
-$sql = "SELECT * FROM parcels WHERE reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ? LIMIT ?, ?";
+$sql = "SELECT * FROM parcels WHERE (reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ?) AND status = 'In Transit' LIMIT ?, ?";
 $stmt = $conn->prepare($sql);
 $searchTermLike = "%" . $searchTerm . "%";
 $stmt->bind_param("ssssi", $searchTermLike, $searchTermLike, $searchTermLike, $offset, $parcelsPerPage);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$countSql = "SELECT COUNT(*) FROM parcels WHERE reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ?";
+$countSql = "SELECT COUNT(*) FROM parcels WHERE (reference_number LIKE ? OR sender_name LIKE ? OR recipient_name LIKE ?) AND status = 'In Transit'";
 $countStmt = $conn->prepare($countSql);
 $countStmt->bind_param("sss", $searchTermLike, $searchTermLike, $searchTermLike);
 $countStmt->execute();
@@ -107,43 +68,7 @@ $countResult = $countStmt->get_result();
 $totalParcels = $countResult->fetch_row()[0];
 
 $totalPages = ceil($totalParcels / $parcelsPerPage);
-
-$branchQuery = "SELECT * FROM branches";
-$branchResult = $conn->query($branchQuery);
-$branches = [];
-while ($branch = $branchResult->fetch_assoc()) {
-    $branches[$branch['id']] = $branch;
-}
-
-// if (isset($_GET['delete_id'])) {
-//     $delete_id = $_GET['delete_id'];
-//     $delete_sql = "DELETE FROM parcels WHERE id = ?";
-//     $stmt = $conn->prepare($delete_sql);
-//     $stmt->bind_param("i", $delete_id);
-//     if ($stmt->execute()) {
-//         echo "<script>alert('Parcel deleted successfully!');</script>";
-//     } else {
-//         echo "Error deleting parcel: " . $conn->error;
-//     }
-// }
-
-// if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-//     $parcel_id = $_POST['parcel_id'];
-//     $new_status = $_POST['status'];
-//     $update_sql = "UPDATE parcels SET status = ? WHERE id = ?";
-//     $stmt = $conn->prepare($update_sql);
-//     $stmt->bind_param("si", $new_status, $parcel_id);
-//     if ($stmt->execute()) {
-//         echo "<script>alert('Parcel status updated successfully!');</script>";
-//     } else {
-//         echo "Error updating parcel status: " . $conn->error;
-//     }
-// }
-
-
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -154,9 +79,8 @@ while ($branch = $branchResult->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="assets/css/side_nav.css">
-    <link rel="stylesheet" href="assets/css/pagination.css">
     <link rel="stylesheet" href="assets/css/table.css">
-
+    <link rel="stylesheet" href="assets/css/pagination.css">
 </head>
 
 <body>
@@ -165,61 +89,56 @@ while ($branch = $branchResult->fetch_assoc()) {
         <i class="fas fa-bars"></i>
     </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
         <h2>Phil<span>Express</span></h2>
-        <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="branches.php"><i class="fas fa-code-branch"></i> Branches</a>
-        <a href="staff.php"><i class="fas fa-users"></i> Staff</a>
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         <div class="dropdown">
             <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i> Parcels</a>
             <ul class="dropdown-menu">
-                <li><a href="parcel_list.php">Parcel List</a></li>
-                <li><a href="parcel_add.php">Add Parcel</a></li>
-                <li><a href="accepted.php">Accepted by Courier</a></li>
-                <li><a href="shipped.php">Shipped</a></li>
-                <li><a href="in_transit.php">In Transit</a></li>
-                <li><a href="arrived_at_destination.php">Arrived At Destination</a></li>
-                <li><a href="out_for_delivery.php">Out for Delivery</a></li>
-                <li><a href="ready_to_pickup.php">Ready to Pickup</a></li>
-                <li><a href="delivered.php">Delivered</a></li>
-                <li><a href="delivery_failed.php">Delivery Failed</a></li>
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
             </ul>
         </div>
-        <a href="track.php"><i class="fas fa-location"></i> TrackParcel</a>
-        <!-- <a href="#"><i class="fas fa-file-alt"></i> ActivityLog</a> -->
+        <a href="staff_track.php"><i class="fas fa-location"></i> TrackParcel</a>
         <div class="logout" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <!-- Navbar (For Mobile) -->
     <div class="navbar">
-        <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
-        <a href="branches.php"><i class="fas fa-code-branch"></i><br> Branches</a>
-        <a href="staff.php"><i class="fas fa-users"></i><br> Staff</a>
+        <a href="staff_dashboard.php"><i class="fas fa-tachometer-alt"></i><br> Dashboard</a>
         <div class="dropdown">
             <a href="#" class="dropdown-toggle"><i class="fas fa-box"></i><br> Parcels</a>
             <ul class="dropdown-menu" id="navbar_dropdown">
-                <li><a href="parcel_list.php">Parcel List</a></li>
-                <li><a href="parcel_add.php">Add Parcel</a></li>
-                <li><a href="accepted.php">Accepted by Courier</a></li>
-                <li><a href="shipped.php">Shipped</a></li>
-                <li><a href="in_transit.php">In Transit</a></li>
-                <li><a href="arrived_at_destination.php">Arrived At Destination</a></li>
-                <li><a href="out_for_delivery.php">Out for Delivery</a></li>
-                <li><a href="ready_to_pickup.php">Ready to Pickup</a></li>
-                <li><a href="delivered.php">Delivered</a></li>
-                <li><a href="delivery_failed.php">Delivery Failed</a></li>
+                <li><a href="staff_parcel_list.php">Parcel List</a></li>
+                <li><a href="staff_parcel_add.php">Add Parcel</a></li>
+                <li><a href="staff_accepted.php">Accepted by Courier</a></li>
+                <li><a href="staff_shipped.php">Shipped</a></li>
+                <li><a href="staff_in_transit.php">In Transit</a></li>
+                <li><a href="staff_arrived_at_destination.php">Arrived At Destination</a></li>
+                <li><a href="staff_out_for_delivery.php">Out for Delivery</a></li>
+                <li><a href="Staff_ready_to_pickup.php">Ready to Pickup</a></li>
+                <li><a href="staff_delivered.php">Delivered</a></li>
+                <li><a href="Staff_delivery_failed.php">Delivery Failed</a></li>
             </ul>
         </div>
-        <a href="track.php"><i class="fas fa-location"></i><br> TrackParcel</a>
-        <!-- <a href="#"><i class="fas fa-file-alt"></i><br> ActivityLog</a> -->
+        <a href="staff_track.php"><i class="fas fa-location"></i><br> TrackParcel</a>
         <a href="#" onclick="confirmLogout()" class="logout"><i class="fas fa-sign-out-alt"></i><br> Logout</a>
     </div>
+
 
     <!-- Content -->
     <div class="content">
         <div class="header">
-            <h1>Parcel List</h1>
+            <h1>In Transit</h1>
         </div>
         <div class="main-content">
             <form method="GET" action="">
@@ -243,23 +162,22 @@ while ($branch = $branchResult->fetch_assoc()) {
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                        <td>" . $row["reference_number"] . "</td>
-                        <td>" . $row["sender_name"] . "</td>
-                        <td>" . $row["recipient_name"] . "</td>
-                        <td>" . $row["status"] . "</td>
-                        <td class='action-icons'>
-                            <i class='fas fa-eye' onclick='viewParcel(" . $row["id"] . ")'></i>
-                            <a href='?delete_id=" . $row["id"] . "'><i class='fas fa-trash-alt'></i></a>
-                        </td>
-                      </tr>";
+                                <td>" . $row["reference_number"] . "</td>
+                                <td>" . $row["sender_name"] . "</td>
+                                <td>" . $row["recipient_name"] . "</td>
+                                <td>" . $row["status"] . "</td>
+                                <td class='action-icons'>
+                                    <i class='fas fa-eye' onclick='viewParcel(" . $row["id"] . ")'></i>
+                                    <a href='?delete_id=" . $row["id"] . "'><i class='fas fa-trash-alt'></i></a>
+                                </td>
+                              </tr>";
                         }
                     } else {
                         echo "<tr><td colspan='5' style='text-align:center;'>No parcels found</td></tr>";
                     }
                     ?>
+
                 </tbody>
-
-
             </table>
             <div class="pagination">
                 <ul>
@@ -274,6 +192,12 @@ while ($branch = $branchResult->fetch_assoc()) {
                     ?>
                 </ul>
             </div>
+
+
+
+
+
+
 
 
             <div id="parcelModal" class="modal">
@@ -388,7 +312,6 @@ while ($branch = $branchResult->fetch_assoc()) {
                     document.getElementById("parcelModal").style.display = "none";
                 }
             </script>
-
         </div>
 
         <script>
