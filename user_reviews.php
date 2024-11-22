@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
     }
 }
 
-$reviews_per_page = 4;
+$reviews_per_page = 8;
 $page = isset($_GET['page']) ? $_GET['page'] : 1;
 $offset = ($page - 1) * $reviews_per_page;
 
@@ -205,6 +205,8 @@ if (isset($_GET['logout'])) {
             text-align: center;
         }
 
+        
+
         .star-rating {
             display: flex;
         }
@@ -239,6 +241,7 @@ if (isset($_GET['logout'])) {
             border-top: 1px solid #ddd;
             padding-top: 20px;
             padding-left: 10px;
+    
         }
 
         .review {
@@ -246,6 +249,7 @@ if (isset($_GET['logout'])) {
             padding-bottom: 15px;
             border-bottom: 1px solid #ddd;
             /* text-align: center; */
+            
             
         }
 
@@ -298,6 +302,8 @@ if (isset($_GET['logout'])) {
         </form>
     </div>
   <!-- Review -->
+   <br>
+  <h3 style="padding: 10px; text-align: center;">Give Us Your Feedback!</h3> <hr>
   <div class="review-form">
         <form method="POST">
             <div class="star-rating">
@@ -312,13 +318,13 @@ if (isset($_GET['logout'])) {
         </form>
     </div>
 
-    <div class="reviews">
-        <h3 align="center">Reviews</h3>
+    <div class="reviews" align="center">
+        <!-- <h3 align="center">Give Us Your Feedback!</h3><br> -->
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='review'>";
-                echo "<strong>{$row['firstname']} {$row['lastname']}</strong> ({$row['email']})<br>";
+                echo "<strong>{$row['firstname']} {$row['lastname']}</strong> <br>";
                 echo "<div class='stars'>" . str_repeat("&#9733;", $row['star_rating']) . "</div>";
                 echo "<p>" . htmlspecialchars($row['comment']) . "</p>";
                 echo "<small>Posted on " . $row['created_at'] . "</small>";

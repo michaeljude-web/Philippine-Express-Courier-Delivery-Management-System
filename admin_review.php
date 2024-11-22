@@ -1,21 +1,17 @@
 <?php
 session_start();
 
-// Include the correct path to db_connection.php
 include("db_connection.php"); 
 
-// Handle the search query
 $search_query = "";
 if (isset($_POST['search'])) {
     $search_query = mysqli_real_escape_string($conn, $_POST['search']);
 }
 
-// Pagination logic
-$reviews_per_page = 10; // Number of reviews per page
+$reviews_per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $reviews_per_page;
 
-// Fetch reviews with user details and pagination, applying the search filter
 $sql = "SELECT r.*, u.firstname, u.lastname, u.email 
         FROM reviews r 
         JOIN users u ON r.user_id = u.id
@@ -24,7 +20,6 @@ $sql = "SELECT r.*, u.firstname, u.lastname, u.email
         LIMIT $reviews_per_page OFFSET $offset";
 $result = $conn->query($sql);
 
-// Fetch total number of reviews for pagination calculation
 $total_sql = "SELECT COUNT(*) AS total_reviews FROM reviews r
               JOIN users u ON r.user_id = u.id
               WHERE u.firstname LIKE '%$search_query%' OR u.lastname LIKE '%$search_query%'";
@@ -33,7 +28,6 @@ $total_row = $total_result->fetch_assoc();
 $total_reviews = $total_row['total_reviews'];
 $total_pages = ceil($total_reviews / $reviews_per_page);
 
-// Handle review deletion
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
     $delete_sql = "DELETE FROM reviews WHERE id = $delete_id";
@@ -51,26 +45,62 @@ if (isset($_GET['delete_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - View Reviews</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #212121; /* Dark background */
+            font-family: 'Arial', sans-serif;
+            background-color: #222;
             color: #fff;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
 
         .container {
+            width: 90%;
             max-width: 1000px;
-            margin: 0 auto;
-            background: #333;
+            background-color: #333;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             text-align: center;
-            color: #f8b400; /* Golden yellow */
+            color: #f8b400;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            padding: 10px;
+            width: 250px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #444;
+            color: #fff;
+        }
+
+        .search-bar button {
+            padding: 10px 20px;
+            background-color: #f8b400;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #f39c12;
         }
 
         table {
@@ -86,6 +116,7 @@ if (isset($_GET['delete_id'])) {
         th, td {
             padding: 12px;
             text-align: left;
+            text-align: center;
         }
 
         th {
@@ -101,16 +132,13 @@ if (isset($_GET['delete_id'])) {
         }
 
         .delete-btn {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
+            color: #ff4d4d;
+            font-size: 20px;
             cursor: pointer;
-            border-radius: 5px;
         }
 
         .delete-btn:hover {
-            background-color: #ff0000;
+            color: #e60000;
         }
 
         .pagination {
@@ -120,7 +148,7 @@ if (isset($_GET['delete_id'])) {
 
         .pagination a {
             margin: 0 5px;
-            padding: 5px 10px;
+            padding: 8px 15px;
             background-color: #f8b400;
             color: white;
             text-decoration: none;
@@ -136,38 +164,12 @@ if (isset($_GET['delete_id'])) {
             color: #fff;
         }
 
-        .search-bar {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .search-bar input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #444;
-        }
-
-        .search-bar button {
-            padding: 10px 20px;
-            background-color: #f8b400;
-            border: none;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .search-bar button:hover {
-            background-color: #f39c12;
-        }
     </style>
 </head>
 <body>
 
     <h2>Admin Review Dashboard</h2>
 
-    <!-- Search Bar -->
     <div class="search-bar">
         <form method="POST" action="">
             <input type="text" name="search" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="Search by user name">
@@ -175,7 +177,6 @@ if (isset($_GET['delete_id'])) {
         </form>
     </div>
 
-    <!-- Admin Review Table -->
     <div class="container">
         <table>
             <tr>
@@ -195,7 +196,7 @@ if (isset($_GET['delete_id'])) {
                     echo "<td>" . str_repeat("&#9733;", $row['star_rating']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['comment']) . "</td>";
                     echo "<td>" . $row['created_at'] . "</td>";
-                    echo "<td><a href='?delete_id={$row['id']}' class='delete-btn'>Delete</a></td>";
+                    echo "<td><a href='#' class='delete-btn' onclick='confirmDelete({$row['id']})'><i class='fas fa-trash'></i></a></td>";
                     echo "</tr>";
                 }
             } else {
@@ -204,7 +205,6 @@ if (isset($_GET['delete_id'])) {
             ?>
         </table>
 
-        <!-- Pagination -->
         <div class="pagination">
             <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
                 <a href="?page=<?php echo $i; ?>" class="<?php echo ($i == $page) ? 'active' : ''; ?>">
@@ -214,10 +214,17 @@ if (isset($_GET['delete_id'])) {
         </div>
     </div>
 
+    <script>
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this review?")) {
+                window.location.href = "?delete_id=" + id;
+            }
+        }
+    </script>
+
 </body>
 </html>
 
 <?php 
-// Close the connection
 $conn->close(); 
 ?>

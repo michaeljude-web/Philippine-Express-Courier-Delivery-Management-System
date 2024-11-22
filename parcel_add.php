@@ -213,7 +213,7 @@ $branches = mysqli_fetch_all($branchesResult, MYSQLI_ASSOC);
             </ul>
         </div>
         <a href="#"><i class="fas fa-location"></i> TrackParcel</a>
-        <a href="#"><i class="fas fa-file-alt"></i> ActivityLog</a>
+        <!-- <a href="#"><i class="fas fa-file-alt"></i> ActivityLog</a> -->
         <div class="logout" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
@@ -339,7 +339,7 @@ $branches = mysqli_fetch_all($branchesResult, MYSQLI_ASSOC);
         function confirmLogout() {
             const confirmAction = confirm("Are you sure you want to logout?");
             if (confirmAction) {
-                window.location.href = "logout.php";
+                window.location.href = "admin_login.php";
             }
         }
     </script>

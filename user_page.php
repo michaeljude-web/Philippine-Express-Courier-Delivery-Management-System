@@ -10,13 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['signup'])) {
 
     $check_email = "SELECT * FROM users WHERE email='$email'";
     $result = $conn->query($check_email);
-    
+
     if ($result->num_rows > 0) {
         echo "<script>alert('Email already registered!');</script>";
     } else {
         $sql = "INSERT INTO users (firstname, lastname, email, password) 
                 VALUES ('$firstname', '$lastname', '$email', '$password')";
-        
+
         if ($conn->query($sql) === TRUE) {
             echo "<script>alert('Sign Up successful! You can now log in.');</script>";
         } else {
@@ -29,12 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";  
+    $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        $_SESSION['user_id'] = $user['id']; 
+        $_SESSION['user_id'] = $user['id'];
         echo "<script>alert('Login successful!'); window.location.href = 'user_dashboard.php';</script>";  // Redirect to user_login2.php
     } else {
         echo "<script>alert('Invalid email or password!');</script>";
@@ -50,6 +50,7 @@ if (isset($_SESSION['user_id'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,9 +66,18 @@ if (isset($_SESSION['user_id'])) {
             background-color: #f9f9f9;
         }
 
+        /* body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            background-image: url('assets/img/background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        } */
+
         .navbar {
             background-color: #ffffff;
-            padding: 15px 30px;
+            padding: 25px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -354,12 +364,12 @@ if (isset($_SESSION['user_id'])) {
         }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar">
         <a href="#" class="logo"></a>
         <ul>
-            <li><a href="user_page.php">Home</a></li>
             <li><a href="#" onclick="showCustomAlert()">Review</a></li>
             <li><a href="#login" onclick="openModal('loginModal')">Login</a></li>
             <li><a href="#signup" onclick="openModal('signupModal')">Sign up</a></li>
@@ -395,8 +405,8 @@ if (isset($_SESSION['user_id'])) {
         </form>
     </div>
 
-      <!-- Content -->
-      <div class="content">
+    <!-- Content -->
+    <div class="content">
         <div class="main-content">
             <div class="track-form">
                 <img src="assets/img/logo.png" alt="Courier Management System" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
@@ -498,8 +508,5 @@ if (isset($_SESSION['user_id'])) {
     </script>
 
 </body>
+
 </html>
-
-
-
-

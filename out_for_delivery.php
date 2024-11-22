@@ -361,7 +361,7 @@ $totalPages = ceil($totalParcels / $parcelsPerPage);
             function confirmLogout() {
                 const confirmAction = confirm("Are you sure you want to logout?");
                 if (confirmAction) {
-                    window.location.href = "logout.php";
+                    window.location.href = "admin_login.php";
                 }
             }
         </script>
